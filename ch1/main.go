@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,10 +24,23 @@ func main() {
 	r.MaxMultipartMemory = 8 << 20
 	r.POST("/upload", func(ctx *gin.Context) {
 		//表单取文件
-		file, _ := ctx.FormFile("file")
-		log.Println(file.Filename)
-		ctx.SaveUploadedFile(file, file.Filename)
-		ctx.String(http.StatusOK, fmt.Sprintf("'%s' upload!", file.Filename))
+		form, err := ctx.MultipartForm()
+		if err != nil {
+			ctx.String(200, fmt.Sprintln(err.Error()))
+		}
+		//获取所有图片
+		files := form.File["file"]
+		for _, file := range files {
+			if err := ctx.SaveUploadedFile(file, file.Filename); err != nil {
+				ctx.String(200, fmt.Sprintf("upload failed, err is %s", err.Error()))
+				return
+			}
+		}
+		ctx.String(200, fmt.Sprintf("upload success, number is %d", len(files)))
+		// file, _ := ctx.FormFile("file")
+		// log.Println(file.Filename)
+		// ctx.SaveUploadedFile(file, file.Filename)
+		// ctx.String(http.StatusOK, fmt.Sprintf("'%s' upload!", file.Filename))
 		//传到项目根目录，名字用本身
 		// type1 := ctx.DefaultPostForm("type","alert")
 		// username := ctx.PostForm("username")

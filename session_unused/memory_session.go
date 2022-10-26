@@ -52,6 +52,6 @@ type MemorySession struct{
 	delete(m.data,key)
 	return
  }
- func (m *MemorySession)Save(key string)(err error){
+ func (m *MemorySession)Save()(err error){
 	return
  }
